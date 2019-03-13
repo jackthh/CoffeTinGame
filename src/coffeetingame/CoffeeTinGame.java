@@ -31,33 +31,41 @@ public class CoffeeTinGame {
    *      {@link TextIO#putf(String, Object...)}: print an error message
    */
   public static void main(String[] args) {
-    // initialise some beans
-    char[] beans = { GREEN, BLUE, BLUE, GREEN, GREEN };
-
-    // count number of greens
-    int greens = 0;
-    for (char b : beans) { 
-      if (b == GREEN)
-        greens++;
+    // initialize some beans
+    char[] beans= {BLUE,BLUE,GREEN,GREEN,GREEN,GREEN,BLUE,GREEN};
+    //count the number of greens
+    int greens =0;
+   
+    for(char b:beans) 
+    {
+      if (b==GREEN)
+            greens++;
     }
-    final char last = (greens % 2 == 1) ? GREEN : BLUE;
-    // beans.length > 0 /\ (greens % 2 = 1 -> last=GREEN) /\ 
-    //    (greens % 2 = 0 -> last=BLUE)
-    
+    // the expected last bean
+    final char last=(greens%2==1)?GREEN:BLUE;
     // print the content of tin before the game
-    TextIO.putf("tin before: %s %n", Arrays.toString(beans));
+    // p0= green parity/\ 
+    // (p0=1 -> last = GREEN) /\ (p0=0 ->last= BLUE)
+    
+   
+    System.out.printf("tin before :%s %n",Arrays.toString(beans));
+    
+    //perform the game
+    char lastBean=tinGame(beans);
+    //lastBean = last\/ lastBean!last
+    
+    
+   //print tin after the game
+System.out.printf("tin after :%s %n",Arrays.toString(beans));
+  // check if last bean as expected and print 
 
-    // perform the game
-    char lastBean = tinGame(beans);
-    // lastBean in beans /\ lastBean = last
     
-    // print the content of tin and last bean
-    TextIO.putf("tin after: %s %n", Arrays.toString(beans));
-    
-    if (lastBean == last) { 
-      TextIO.putln("last bean: " + lastBean);      
-    } else {
-      TextIO.putf("Oops, wrong last bean: %c (expected: %c)%n",lastBean,last);
+  if (lastBean==last)
+    {
+        System.out.println("last bean: "+lastBean);
+   }
+   else {
+      System.out.printf("Oops, wong last bean: %c (epectec : %c).%n",lastBean,last);
     }
   }
 
@@ -81,58 +89,73 @@ public class CoffeeTinGame {
    *            (p0 = 1 /\ one green left), where p0 = initial green parity
    *            </pre>
    */
-  public static char tinGame(char[] tin) {    
-    int bi1, bi2;
-    int b1, b2;
-    int count = tin.length;
-    bi1 = 0;
-    //
-    // Loop invariant: 
-    //  p = p0 /\ count >= 1
-    // Loop variant:   
-    //  P(count) = false  if count >= 2
-    //             true   if count = 1      
-    //
-    // n=no of greens /\ m=no of blues /\ n+m=count /\ 
-    // (M1.2a: for all j=bi1 to tin.length-1. tin[j]!=REMOVED) /\ 
-    // (M1.2b: 1<=count<=tin.length) /\ 
-    // (M1.2c: bi1+count=tin.length /\ p=p0) 
-    while (count >= 2) {
-      // (M2.2: M1.2a /\ (M2.2a: 2<=count<=tin.length) /\ M1.2c /\ 
-      //  n=n /\ m=m /\ count=n+m)      
-      // remove b1, b2 from tin
-      b1 = tin[bi1];          // M2.2
-      bi2 = bi1+1;            // M2.2 /\ bi2=bi1+1
-      b2 = tin[bi2];          // M2.2 /\ bi2=bi1+1
-      tin[bi1] = REMOVED; 
-      tin[bi2] = REMOVED;     
-      if (b1 == BLUE && b2 == BLUE) { 
-         // put B in bin
-        tin[bi2] = BLUE;      // n=n /\ m=m-1 /\ count=n+m+1 /\ p=p0 /\ 
-        // bi2=bi1+1 /\ for all j=bi2 to tin.length-1. tin[j]!=REMOVED
-      } else if (b1 == GREEN && b2 == GREEN) { 
-        // put B in bin
-        tin[bi2] = BLUE;      // n=n-2 /\ m=m+1 /\ count=n+m+1 /\ p=p0 /\
-        // bi2=bi1+1 /\ for all j=bi2 to tin.length-1. tin[j]!=REMOVED
-      } else { // BG, GB    
-        // put G in bin
-        tin[bi2] = GREEN;     // n=n /\ m=m-1 /\ count=n+m+1 /\ p=p0 /\
-        // bi2=bi1+1 /\ for all j=bi2 to tin.length-1. tin[j]!=REMOVED
+  public static char tinGame(char[] tin) {  
+      int count = tin.length;
+      
+      while (count > 1) {
+          updateTin(tin, takeTwo(tin));
       }
-      // count=n+m+1 /\ p=p0 /\ bi2=bi1+1 /\ 
-      // for all j=bi2 to tin.length-1. tin[j]!=REMOVED
-      count--;
-      bi1++;          
-      // M1.2a /\ M1.2b /\ M1.2c
-    }
+      
+      char LastBean = 0;
+      
+      //Loop invariant
+      for (char x : tin) {
+          // Check whether bean is avaiable or not
+          if (x != REMOVED) {
+              LastBean = x;
+          }
+      }
+      
+      return LastBean;
     
-    // count=1 /\ M1.2c /\ tin[bi1]!=REMOVED
-    return tin[bi1];
   }
   
-  public int randInt(int n) {
+  public static int[] takeTwo(char[] tin) {
+      int[] randIndices = new int[2];
+      int bean1, bean2;
+      bean1 = randInt(tin.length);
+      bean2 = randInt(tin.length);
+
+
+      // Check whether random beans are avaiable or not
+      while (tin[bean1] == REMOVED || tin[bean2] == REMOVED || tin[bean1] == tin[bean2]) {
+        // Take 2 random beans from tin
+        bean1 = randInt(tin.length);
+        bean2 = randInt(tin.length);
+      } 
+        // Return indices
+        randIndices[0] = bean1;
+        randIndices[1] = bean2;
+      
+      return randIndices;
+  }
+  
+  public static void updateTin(char[] tin, int[] randIndices) {
+      char bi1, bi2;
+      
+      // Determine 2 random beans
+      bi1 = tin[randIndices[0]];
+      bi2 = tin[randIndices[1]];
+      
+      tin[randIndices[0]] = REMOVED;
+      tin[randIndices[1]] = REMOVED;
+      
+      // Color check and update
+      if (bi1 == bi2) {
+        tin[randIndices[0]] = BLUE;
+      } else {
+          if (bi1 == BLUE) {
+            tin[randIndices[1]] = GREEN;
+          } else {
+            tin[randIndices[0]] = GREEN;
+          }
+      }
+  }
+  
+  
+  public static int randInt(int n) {
+      // Return an random integer number from 0 (inclusive) to n (exclusive)
       Random r = new Random();
-        
       return r.ints(0, n).limit(1).findFirst().getAsInt();
   }
 }
