@@ -2,6 +2,8 @@ package coffeetingame;
 
 import java.util.*;
 
+import utils.TextIO;
+
 /**
  * @overview A program that performs the coffee tin game.
  * 
@@ -17,13 +19,14 @@ public class CoffeeTinGame {
 
   /**
    * the main procedure
+     * @param args
    * @effects 
-   *    initialise a coffee tin
+   *    initialize a coffee tin
    *    {@link TextIO#putf(String, Object...)}: print the tin content
    *    {@link @tinGame(char[])}: perform the coffee tin game on tin
    *    {@link TextIO#putf(String, Object...)}: print the tin content again
    *    if last bean is correct
-   *      {@link TextIO#putf(String, Object...)}: print its colour 
+   *      {@link TextIO#putf(String, Object...)}: print its color 
    *    else
    *      {@link TextIO#putf(String, Object...)}: print an error message
    */
@@ -59,7 +62,7 @@ public class CoffeeTinGame {
   }
 
   /**
-   * Performs the coffee tin game to determine the colour of the last bean
+   * Performs the coffee tin game to determine the color of the last bean
    * 
    * @requires tin is not null /\ tin.length > 0
    * @modifies tin
@@ -78,7 +81,7 @@ public class CoffeeTinGame {
    *            (p0 = 1 /\ one green left), where p0 = initial green parity
    *            </pre>
    */
-  private static char tinGame(char[] tin) {    
+  public static char tinGame(char[] tin) {    
     int bi1, bi2;
     int b1, b2;
     int count = tin.length;
@@ -118,12 +121,18 @@ public class CoffeeTinGame {
       }
       // count=n+m+1 /\ p=p0 /\ bi2=bi1+1 /\ 
       // for all j=bi2 to tin.length-1. tin[j]!=REMOVED
-      count = count-1;
-      bi1 = bi1+1;          
+      count--;
+      bi1++;          
       // M1.2a /\ M1.2b /\ M1.2c
     }
     
     // count=1 /\ M1.2c /\ tin[bi1]!=REMOVED
     return tin[bi1];
+  }
+  
+  public int randInt(int n) {
+      Random r = new Random();
+        
+      return r.ints(0, n).limit(1).findFirst().getAsInt();
   }
 }
